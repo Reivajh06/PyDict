@@ -5,7 +5,11 @@ import java.util.Arrays;
 public class Main {
 
 	public static void main(String[] args) {
-		PyDict<String, Integer> dict1 = PyDict.fromKeys(new String[]{"Hello", "World"});
-		System.out.println(Arrays.toString(dict1.items()));
+		PyDict<String, Integer> dict = new PyDict<>(
+				new String[] {"Blue", "Serio", "Espabilado", "Albino", "Saltarina", "Pardo"},
+				new Integer[] {1, 2, 3, 4, 5, 6}
+		);
+		System.out.println(Arrays.toString(dict.items()));
+		System.out.println(dict.get("Saltarina"));
 	}
 }

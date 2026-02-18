@@ -10,7 +10,6 @@ public class PyDict<K, V> {
 	clear
 	copy
 	fromkeys
-	get
 	pop
 	popitem
 	setdefault
@@ -48,6 +47,20 @@ public class PyDict<K, V> {
 		nItems = 0;
 	}
 
+	public PyDict(K[] keys, V[] values) {
+		if(keys.length != values.length) throw new IllegalArgumentException("keys and values arrays lengths do not match");
+
+		indices = new int[keys.length * 2];
+		fill(indices, -1);
+		entries = new Entry[keys.length * 2];
+		mask = indices.length - 1;
+		nItems = 0;
+
+		for(int i = 0; i < keys.length; i++) {
+			put(keys[i], values[i]);
+		}
+	}
+
 	/*
 	* Constructor similar to fromkeys function in python to create dictionary with default value
 	*
@@ -57,7 +70,7 @@ public class PyDict<K, V> {
 		fill(indices, -1);
 		entries = new Entry[keys.length * 2];
 
-		mask = keys.length - 1;
+		mask = indices.length - 1;
 
 		nItems = 0;
 
@@ -67,7 +80,7 @@ public class PyDict<K, V> {
 	}
 
 	public PyDict(K[] keys){
-		this(keys, null);
+		this(keys, (V[]) new Object());
 	}
 
 	private void grow() {
@@ -100,8 +113,6 @@ public class PyDict<K, V> {
 			grow();
 		}
 
-		//Remember to include a reference to the first dummy found,
-		//Finding a dummy may not lead to insertion as said key might already exists
 		int firstDummyPos = -1;
 
 		int perturb = key.hashCode();
@@ -135,6 +146,52 @@ public class PyDict<K, V> {
 		entries[nextEntryIndex] = new Entry<>(key, value, key.hashCode());
 		indices[index] = nextEntryIndex++;
 		nItems++;
+	}
+
+	public V get(K key) {
+		if(nItems == 0) return null;
+
+		int perturb = key.hashCode();
+		int j = perturb;
+		int index = j & mask;
+
+		while(true) {
+			if(indices[index] == DKIXEMPTY) return null;
+
+			if(entries[indices[index]].key.equals(key)) {
+				return entries[indices[index]].value;
+			}
+
+			perturb >>>= PERTURBSHIFT;
+			j = (5 * j) + 1 + perturb;
+			index = j & mask;
+		}
+	}
+
+	public V pop(K key) throws NoSuchMethodException {
+		if(nItems == 0) throw new IllegalArgumentException("Key %s not found".formatted(key));
+
+		int perturb = key.hashCode();
+		int j = perturb;
+		int index = j & mask;
+
+		while(true) {
+			if(indices[index] == DKIXEMPTY) throw new IllegalArgumentException("Key %s not found".formatted(key));
+
+			if(entries[indices[index]].key.equals(key)) {
+				break;
+			}
+
+			perturb >>>= PERTURBSHIFT;
+			j = (5 * j) + 1 + perturb;
+			index = j & mask;
+		}
+
+		//Should eliminate entry of key and readjust array
+		//Do NOT reduce array length, just readjust insertion order of the entries array
+		indices[index] = DKIXDUMMY;
+
+		throw new NoSuchMethodException("Not implemented");
 	}
 
 	public void update(PyDict<K, V> otherDict) {
