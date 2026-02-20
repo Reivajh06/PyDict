@@ -7,20 +7,8 @@ import java.util.stream.Stream;
 @SuppressWarnings("all")
 public class PyDict<K, V> {
 
-	/*
-	Implemented so far (Python-dict-like API):
-	- fromKeys(...)
-	- of(...)
-	- put
-	- get
-	- update
-	- keys
-	- values
-	- items
-
+/*
 	Missing / TODO:
-	- copy
-	- popitem
 	- setdefault
 	 */
 
@@ -135,6 +123,17 @@ public class PyDict<K, V> {
 		indices = new int[indices.length];
 		nItems = 0;
 		nextEntryIndex = 0;
+	}
+
+	public PyDict<K, V> copy() {
+		PyDict<K, V> copyDict = new PyDict<>();
+
+		for(Entry<K, V> e : entries) {
+			if(e == null) continue;
+			copyDict.put(e.key, e.value);
+		}
+
+		return copyDict;
 	}
 
 	public void put(K key, V value) {
