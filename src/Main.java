@@ -7,7 +7,10 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({tests.PutTests.class, tests.GetValueTests.class})
+@SuiteClasses({tests.PutTests.class, tests.GetValueTests.class,
+               tests.SizeTests.class, tests.Pop1Tests.class,
+               tests.Pop2Tests.class
+})
 
 public class Main {
 
@@ -26,4 +29,3 @@ public class Main {
         System.out.println(Arrays.toString(dict.items()));
     }
 }
-
